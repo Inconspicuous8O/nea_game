@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro.Examples;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -12,12 +13,31 @@ public class BuildingSystem : MonoBehaviour
     [SerializeField] private Tilemap MainTilemap;
     [SerializeField] private TileBase whiteTile;
 
-    public GameObject prefab1;
-    public GameObject prefab2;
+    public bool inBattle;
+
+    [Header("Gold Hut")]
+    public GameObject gold;
+
+    [Header("Wizard Hut")]
+    public GameObject elixir;
+
+    [Header("Mage Tower")]
+    public GameObject mage;
+
+    [Header("Cannon")]
+    public GameObject cannon;
+
+    [Header("Walls")]
+    public GameObject regularWall;
+    public GameObject cornerWall;
+    public GameObject tWall;
+    public GameObject plusWall;
 
     private PlaceableObject objectToPlace;
 
     #region Unity methods
+
+    public bool allPlaced = true;
 
     private void Awake()
     {
@@ -26,41 +46,185 @@ public class BuildingSystem : MonoBehaviour
 
     }
 
-    private void Update()
-    {
-        ///can be replaced with a button
-        if (Input.GetKeyDown(KeyCode.R))
+    public void GoldHutFunction(){
+        if(Upgrade.goldHutRequirement == Upgrade.goldHutCurrent)
         {
-            InitializeWithObject(prefab1);
+            Debug.Log("Upgrade Town Hall first");
+            return;
+        }
+        allPlacedCheck();
+        if (allPlaced == true){
+            InitializeWithObject(gold); 
+        } 
+    }
+
+    public void WizardHutFunction(){
+        if(Upgrade.wellRequirement == Upgrade.wellCurrent)
+        {
+            Debug.Log("Upgrade Town Hall first");
+            return;
+        }
+        allPlacedCheck();
+        if (allPlaced == true){
+            InitializeWithObject(elixir); 
+        }   
+    }
+
+    public void MageTowerFunction(){
+        if(Upgrade.mageRequirement == Upgrade.mageCurrent)
+        {
+            Debug.Log("Upgrade Town Hall first");
+            return;
+        }
+        allPlacedCheck();
+        if (allPlaced == true){
+            InitializeWithObject(mage); 
+        }   
+    }
+
+    public void CannonFunction(){
+        if(Upgrade.cannonRequirement == Upgrade.cannonCurrent)
+        {
+            Debug.Log("Upgrade Town Hall first");
+            return;
+        }
+        allPlacedCheck();
+        if (allPlaced == true){
+            InitializeWithObject(cannon); 
+        }
+    }
+
+    public void RegularWallFunc(){
+        if(Upgrade.wallRequirement == Upgrade.wallCurrent)
+        {
+            Debug.Log("Upgrade Town Hall first");
+            return;
+        }
+        allPlacedCheck();
+        if (allPlaced == true){
+            InitializeWithObject(regularWall); 
+        }
+    }
+    public void CornerWallFunc(){
+        if(Upgrade.wallRequirement == Upgrade.wallCurrent)
+        {
+            Debug.Log("Upgrade Town Hall first");
+            return;
+        }
+        allPlacedCheck();
+        if (allPlaced == true){
+            InitializeWithObject(cornerWall); 
+        }
+    }
+    public void TWallFunc(){
+        if(Upgrade.wallRequirement == Upgrade.wallCurrent)
+        {
+            Debug.Log("Upgrade Town Hall first");
+            return;
+        }
+        allPlacedCheck();
+        if (allPlaced == true){
+            InitializeWithObject(tWall); 
+        }
+    }
+    public void PlusWallFunc(){
+        if(Upgrade.wallRequirement == Upgrade.wallCurrent)
+        {
+            Debug.Log("Upgrade Town Hall first");
+            return;
+        }
+        allPlacedCheck();
+        if (allPlaced == true){
+            InitializeWithObject(plusWall); 
+        }
+    }
+
+    public void allPlacedCheck(){
+        allPlaced = true;
+
+        GameObject[] allGameObjects = FindObjectsOfType<GameObject>();
+        foreach (GameObject obj in allGameObjects){
+        
+        ObjectDrag drag = obj.GetComponent<ObjectDrag>();
+
+        if (drag != null){
+            allPlaced = false;
+        }
         }
 
-        // if (!objectToPlace)
-        // {
-        //     Debug.Log("IDK why this is triggering");
-        //     return;
-        // }
+        if (allPlaced != true){
+            Debug.Log("Previous object not placed");
+        }
+
+        if(inBattle == true)
+        {
+            Debug.Log("Cant build when in battle");
+            allPlaced = false;
+        }
+
+    }
+
+    private void Update()
+    {
+
+        /*if (!objectToPlace)
+        {
+            Debug.Log("IDK why this is triggering");
+            return;
+        }*/
 
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            Debug.Log("Enter is being pressed");
+            if(objectToPlace == null)
+            {
+                return;
+            }
+
             if (CanBePlaced(objectToPlace))
             {
-                Debug.Log("Object is being placed");
                 objectToPlace.Place();
                 Vector3Int start = gridLayout.WorldToCell(objectToPlace.GetStartPosition());
                 TakeArea(start, objectToPlace.Size);
+                objectToPlace = null;
             }
             else
             {
                 Destroy(objectToPlace.gameObject);
             }
         }
+
         else if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("Escape is being pressed");
-            Destroy(objectToPlace.gameObject);
+            if (objectToPlace != null)
+            {
+                Destroy(objectToPlace.gameObject);
+            }
         }
+        else if(Input.GetKeyDown(KeyCode.R))
+        {
+            if (objectToPlace != null)
+            {
+                PlacedObject placed = objectToPlace.GetComponent<PlacedObject>();
+                if (placed == false)
+                {
+                    objectToPlace.Rotate();
+                }
+            }
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            Selected();
+        }
+        else if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            DeletableObject[] deletableObjects = FindObjectsOfType<DeletableObject>();
 
+            foreach (DeletableObject obj in deletableObjects)
+            {
+                RemoveObject(obj.gameObject);
+            }
+        }
+        
     }
 
     #endregion
@@ -114,6 +278,7 @@ public class BuildingSystem : MonoBehaviour
         GameObject obj = Instantiate(prefab, position, Quaternion.identity);
         objectToPlace = obj.GetComponent<PlaceableObject>();
         obj.AddComponent<ObjectDrag>();
+
     }
 
     public bool CanBePlaced(PlaceableObject placeableObject)
@@ -133,6 +298,10 @@ public class BuildingSystem : MonoBehaviour
             }
         }
 
+        if (!ResourcesScript.ResourceUsage(objectToPlace.gameObject)){
+            return false;
+        }
+
         return true;
     }
 
@@ -141,7 +310,96 @@ public class BuildingSystem : MonoBehaviour
         MainTilemap.BoxFill(start, whiteTile, start.x, start.y, start.x+ size.x, start.y+size.y);
     }
 
+    
+
     #endregion
+
+
+    #region Demolishing
+
+    public void RemoveObject(GameObject obj)
+    {
+        Upgrade UpgradeInstance = FindObjectOfType<Upgrade>();
+        UpgradeInstance.RequirmentChange(obj);///.gameObject
+
+        ResourcesScript resourcesScriptInstance = FindObjectOfType<ResourcesScript>();
+        resourcesScriptInstance.ResourceChange(obj);
+
+
+        Vector3 objectPosition = obj.transform.position; // Get the position of your game object
+        Vector3 objectSize = new Vector3(1.0f, 1.0f, 0.0f);
+        RemoveArea(objectPosition, objectSize);
+        Destroy(obj); // Destroy the game object, not the component
+    }
+
+    public void RemoveArea(Vector3 position, Vector3 size)
+    {
+        // Calculate the cell positions covered by the game object
+        Vector3Int cellPosition1 = MainTilemap.WorldToCell(position);
+        MainTilemap.SetTile(cellPosition1, null);
+    }
+
+    public void Selected()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            PlaceableObject selectable = hit.collider.GetComponent<PlaceableObject>();
+            
+            if (hit.transform.gameObject.name.Contains("Town Hall"))
+                {
+                    THCanvasChange town_hall_script= hit.transform.gameObject.GetComponent<THCanvasChange>();
+                    town_hall_script.TH_Change_canvas();
+
+                }
+            
+            if (hit.transform.gameObject.name.Contains("Barbarian") || hit.transform.gameObject.name.Contains("Archer") )
+            {
+                TroopsPossessing troopsPossessingInstance = FindObjectOfType<TroopsPossessing>();
+                troopsPossessingInstance.Possessing(hit.transform.gameObject);
+            }
+            
+            if (selectable != null)
+            {
+                GameObject hitObject = hit.transform.gameObject;
+
+                DeletableObject deletable = hitObject.GetComponent<DeletableObject>();
+                PlacedObject placed = hitObject.GetComponent<PlacedObject>();
+
+                if (deletable != null && placed != null)
+                {
+                    Destroy(hitObject.GetComponent<DeletableObject>());
+
+                    Renderer[] childRenderers = hitObject.GetComponentsInChildren<Renderer>();
+                
+                    foreach (Renderer childRenderer in childRenderers)
+                    {    
+                    Material material = childRenderer.material;
+                    material.color = Color.white;
+                    }
+                }
+                else if (deletable == null && placed != null)
+                {
+                    hitObject.AddComponent<DeletableObject>();
+                
+                    Renderer[] childRenderers = hitObject.GetComponentsInChildren<Renderer>();
+                
+                    foreach (Renderer childRenderer in childRenderers)
+                    {
+                    Material material = childRenderer.material;
+                    material.color = Color.black;
+                    }
+                }
+            }
+        } 
+    }
+
+    #endregion
+
+
+
 
 
 }

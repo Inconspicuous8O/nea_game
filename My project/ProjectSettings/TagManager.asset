@@ -3,7 +3,14 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Enemy
+  - Town Hall
+  - Resource Buildings
+  - Defence Buildings
+  - Wall
+  - Plane
+  - Troop
   layers:
   - Default
   - TransparentFX
