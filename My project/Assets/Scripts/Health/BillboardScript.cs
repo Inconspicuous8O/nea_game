@@ -8,6 +8,7 @@ public class BillboardScript : MonoBehaviour
 
     void LateUpdate()
     {
+        /// Turns the health bar
         transform.LookAt(transform.position + cam.forward);
     }
 }

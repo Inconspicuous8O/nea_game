@@ -12,28 +12,29 @@ public class BarbarianAttack : MonoBehaviour
 
     void Update()
     {
-        cooldownTimer -= Time.deltaTime;
+        cooldownTimer -= Time.deltaTime; /// reduce timer
 
         if (cooldownTimer <= 0f)
         {
-            ExecuteAoEAttack();
+            ExecuteAoEAttack(); /// activate AOE
 
-            cooldownTimer = cooldownTime;
+            cooldownTimer = cooldownTime;/// reset timer
         }
     }
 
     void ExecuteAoEAttack()
     {
+        /// gets all objects that are in the invisible sphere created
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, range);
 
-        foreach (Collider collider in hitColliders)
+        foreach (Collider collider in hitColliders) /// iterate through each object
         {
-            if (collider.CompareTag("Enemy"))
+            if (collider.CompareTag("Enemy")) /// checks if it has the enemy tag
             {
-                HealthScript healthScript = collider.transform.parent.GetComponent<HealthScript>();
-                if (healthScript != null)
+                HealthScript healthScript = collider.transform.parent.GetComponent<HealthScript>(); /// grabs health component from object
+                if (healthScript != null) /// makes sure the object is attackable
                 {
-                    healthScript.TakeDamage(damage);
+                    healthScript.TakeDamage(damage); /// deal damage
                 }
             }
         }

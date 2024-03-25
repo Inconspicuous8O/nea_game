@@ -12,8 +12,8 @@ public class PlaceableObject : MonoBehaviour
 
     private void GetColliderVertexPositionLocal()
     {
-        BoxCollider b = gameObject.GetComponent<BoxCollider>();
-        Vertices = new Vector3[4];
+        BoxCollider b = gameObject.GetComponent<BoxCollider>(); /// Gets the box collider component
+        Vertices = new Vector3[4]; /// Creates a new array to store the values   
         Vertices[0] = b.center + new Vector3(-b.size.x, -b.size.y, -b.size.z) * 0.5f;
         Vertices[1] = b.center + new Vector3(b.size.x, -b.size.y, -b.size.z) * 0.5f;
         Vertices[2] = b.center + new Vector3(b.size.x, -b.size.y, b.size.z) * 0.5f;
@@ -22,7 +22,7 @@ public class PlaceableObject : MonoBehaviour
 
     private void CalculateSizeInCells()
     {
-        Vector3Int[] vertices = new Vector3Int[Vertices.Length];
+        Vector3Int[] vertices = new Vector3Int[Vertices.Length]; /// Creates a new array to store the values 
 
         for (int i = 0; i < vertices.Length; i++)
         {
@@ -30,6 +30,7 @@ public class PlaceableObject : MonoBehaviour
             vertices[i] = BuildingSystem.current.gridLayout.WorldToCell(worldPos);
         }
 
+        /// Calculation that takes adjacent vertices to find the size of the object
         Size = new Vector3Int(Math.Abs((vertices[0] - vertices[1]).x), 
                             Math.Abs((vertices[0] - vertices[3]).y), 
                             1);
@@ -37,85 +38,37 @@ public class PlaceableObject : MonoBehaviour
 
     public Vector3 GetStartPosition()
     {
-        return transform.TransformPoint(Vertices[0]);
+        /// returns the first vertex
+        return transform.TransformPoint(Vertices[0]); /// error here when spamming enter
     }
 
     public void Rotate()
     {
-        transform.Rotate(new Vector3(0,90,0));
-        Size = new Vector3Int(Size.y, Size.x,1);
+        transform.Rotate(new Vector3(0,90,0)); /// rotate the coordinate by 90 degrees by y axis
+        Size = new Vector3Int(Size.y, Size.x,1); /// alter the size as it has now changed
 
-        Vector3[] vertices = new Vector3[Vertices.Length];
+        Vector3[] vertices = new Vector3[Vertices.Length]; /// create a new array and alter the vertices
         for (int i = 0; i < vertices.Length; i++)
         {
             vertices[i] = Vertices[(i+1) % Vertices.Length];
         }
 
-        Vertices = vertices;
+        Vertices = vertices; /// the new vertices replace the old ones
     }
 
     public void Start()
     {
+        /// call required functions
         GetColliderVertexPositionLocal();
         CalculateSizeInCells();
     }
 
     public virtual void Place()
     {
+        /// Gets ObjectDrag component and assign it to a local variable
         ObjectDrag drag = gameObject.GetComponent<ObjectDrag>();
+        /// Add a component that will later be used to identify if the object has been placed or not
         gameObject.AddComponent<PlacedObject>();
-        Destroy(drag);
-        
-        //call any functions that are to do with when the building is being placed
-
+        Destroy(drag); /// Destroys drag component
     }
-
-    public static bool ResourceUsage(GameObject objectToPlace){
-        int goldUsage = 0;
-        int elixirUsage = 0;
-
-        if (objectToPlace.name.Contains("Gold Hut")){
-            goldUsage = 50;
-            elixirUsage = 100;
-            ResourcesScript.goldPerSec += 5;
-            Upgrade.Built("gold");
-        }
-        else if (objectToPlace.name.Contains("Wizard Hut")){
-            goldUsage = 100;
-            elixirUsage = 50;
-            ResourcesScript.elixirPerSec += 5;
-            Upgrade.Built("well");
-        }
-        else if (objectToPlace.name.Contains("Mage Tower")){
-            goldUsage = 100;
-            elixirUsage = 200;
-            Upgrade.Built("mage");
-        }
-        else if (objectToPlace.name.Contains("Cannon")){
-            goldUsage = 200;
-            elixirUsage = 100;
-            Upgrade.Built("cannon");
-        }
-        else if (objectToPlace.name.Contains("Wall")){
-            goldUsage = 50;
-            elixirUsage = 50;
-            Upgrade.Built("wall");
-        }
-
-
-
-        if (((ResourcesScript.currentGold - goldUsage) < 0)||((ResourcesScript.currentElixir - elixirUsage) < 0)){
-            Debug.Log("Not enough resources");
-            return false;
-        }
-        else{
-            ResourcesScript.currentGold -= goldUsage;
-            ResourcesScript.currentElixir -= elixirUsage;
-            return true;
-        }
-            
-    }
-
-
-    
 }

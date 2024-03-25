@@ -9,19 +9,18 @@ public class HealthScript : MonoBehaviour
 
     public HealthBar healthbar;
 
-
-
     void Start()
     {
-        currentHealth = maxHealth;
-        healthbar.SetMaxHealth(maxHealth);
+        currentHealth = maxHealth; /// sets current health to the max health possible
+        healthbar.SetMaxHealth(maxHealth); /// changes the slider
     }
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        healthbar.SetHealth(currentHealth);
+        currentHealth -= damage; /// Change health
+        healthbar.SetHealth(currentHealth); /// Change slider value
 
+        /// calls correct function for when an object health is 0
         if (currentHealth <= 0 && gameObject.tag != "Enemy" && gameObject.tag != "Troop")
         {
             DestroyBuilding();
@@ -39,36 +38,37 @@ public class HealthScript : MonoBehaviour
 
     public void DestroyTroop()
     {
-        Debug.Log("Destroying troop");
-        ResourcesScript.currentGold -= 50;
-        ResourcesScript.goldPerSec += 5;
-        Destroy(transform.parent.gameObject);
+        ResourcesScript.currentGold -= 50; /// consequence of losing the troop
+        ResourcesScript.goldPerSec += 5; /// makes so that troop income is not still happening
+        Destroy(transform.parent.gameObject); /// destroy object
 
+        /// grabs script
         TroopsPossessing troopsPossessingScript = FindObjectOfType<TroopsPossessing>();
-        troopsPossessingScript.ExitPossession();
+        troopsPossessingScript.ExitPossession(); /// exit troop pov
     }
 
     public void DestroyEnemy()
     {
+        /// getting relevant script
         EnemyMovement movementScript = gameObject.GetComponent<EnemyMovement>();
 
+        /// add reward for defeating enemies
         ResourcesScript.currentGold += movementScript.goldWhenDefeated;
         ResourcesScript.currentElixir += movementScript.elixirWhenDefeated;
 
-        Destroy(gameObject);
+        Points.add_points(movementScript.pointsWhenDefeated); /// adding points
+        Destroy(gameObject); /// destroy object
 
     }
 
     public void DestroyBuilding()
     {
-        BuildingSystem buildingSystemInstance = FindObjectOfType<BuildingSystem>();     
-        buildingSystemInstance.RemoveObject(gameObject);
-    }
+        BuildingSystem buildingSystemInstance = FindObjectOfType<BuildingSystem>(); /// gets instance
+        buildingSystemInstance.RemoveObject(gameObject); /// calls function to remove building
 
-
-
-    public void Update()
-    {
-
+        if (gameObject.tag == "Town Hall")
+        {
+            GameOver.ChangeScene(); /// change scene if town hall has been destroyed
+        }
     }
 }

@@ -23,28 +23,36 @@ public class Cannon : MonoBehaviour
     void Start()
     {
         InvokeRepeating("UpdateTarget",0f, 0.5f);
-        
     }
 
     void UpdateTarget()
     {
+        /// Creates an array will all the objects with the enemyTag tag 
         GameObject[] enemies = GameObject.FindGameObjectsWithTag(enemyTag);
 
+        /// sets initial shortest distance to infinity and nearest enemy as nothing
         float shortestDistance = Mathf.Infinity;
         GameObject nearestEnemy = null;
 
+        /// loop to calculate the distance from cannon to enemy for all the enemies
         foreach (GameObject enemy in enemies)
         {
+            ///Calculate the distance
             float distanceToEnemy = Vector3.Distance(transform.position, enemy.transform.position);
-            if (distanceToEnemy < shortestDistance)
+            
+            /// Decides if the distance is the shortest distance out of all enemies
+            if (distanceToEnemy < shortestDistance && distanceToEnemy >= blindSpot)
             {
+                ///Updates shortest distance and enemy object variable
                 shortestDistance = distanceToEnemy;
                 nearestEnemy = enemy;
             }
         }
 
+        ///Decides if enemy exists and is within range
         if (nearestEnemy != null && shortestDistance <= range && shortestDistance >= blindSpot)
         {
+            /// Updates target
             target = nearestEnemy.transform;
         }
         else
@@ -53,13 +61,15 @@ public class Cannon : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (target == null){
+        /// decides if target exists or not
+        if (target == null)
+        {
             return;
         }
 
+        /// Code to change the direction of the turret
         Vector3 dir = target.position - transform.position;
         Quaternion lookRotation =  Quaternion.LookRotation(dir);
         Vector3 rotation = lookRotation.eulerAngles;
@@ -74,17 +84,18 @@ public class Cannon : MonoBehaviour
             cannonBarrel.rotation = lookRotation;
         }
 
-
-
+        /// if the cooldown is 0 then shoot
         if (fireCountdown <= 0)
         {
-            Shoot();
-            fireCountdown = 1f/fireRate;
+            Shoot(); /// shoot bullets
+            fireCountdown = 1f/fireRate; /// rest countdown
         }
 
+        /// otherwise reduce cooldown
         fireCountdown -= Time.deltaTime;
     }
 
+    /// Function to visualise the range of the turret
     void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(transform.position,range);
@@ -93,9 +104,11 @@ public class Cannon : MonoBehaviour
 
     void Shoot()
     {
+        /// instantiate the bullet a specified position 
         GameObject bulletGo = (GameObject)Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         Projectile_motion bullet = bulletGo.GetComponent<Projectile_motion>();
 
+        /// if bullet exists and has the component, then chase target
         if (bullet != null)
         {
             bullet.Seek(target);

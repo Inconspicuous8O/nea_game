@@ -20,11 +20,12 @@ public class WaveSpawner : MonoBehaviour
     {
         if (countdown <= 0f)
         {
+            /// if countdown is less than or equals to 0 the spawn wave
             SpawnWave();
-            countdown = timeBetweenWaves;
+            countdown = timeBetweenWaves; /// reset countdown time
         }
 
-        countdown -= Time.deltaTime;
+        countdown -= Time.deltaTime; /// reduce countdown time
     }
 
     public void SpawnWave()
@@ -32,24 +33,25 @@ public class WaveSpawner : MonoBehaviour
         countdown = timeBetweenWaves;
         for(int i = 0; i < waveNumber; i++)
         {
+            /// iterate up to number of waves and spawn enemy
             SpawnEnemy();
         }
 
-        waveNumber++;
+        waveNumber++; ///increment wave number
     }
 
     void SpawnEnemy()
     {
-        float randInt = Random.value;
+        float randInt = Random.value; /// create random value
 
-        if (randInt > chanceOfNothing)
+        if (randInt > chanceOfNothing) /// if random number is large than chance of nothing value
         {
-            Transform[] enemies = new Transform[] { normal, wallBreaker, goblin, giant };
-            int randomIndex = Random.Range(0, enemies.Length);
+            Transform[] enemies = new Transform[] { normal, wallBreaker, goblin, giant }; /// create array of all the enemies
+            int randomIndex = Random.Range(0, enemies.Length); /// generate another random number 
 
-            Transform randomEnemy = enemies[randomIndex];
+            Transform randomEnemy = enemies[randomIndex]; /// select chosen enemy from array
 
-            Instantiate(randomEnemy, transform.position, transform.rotation);
+            Instantiate(randomEnemy, transform.position, transform.rotation); /// spawn enemy
         }
         
     }

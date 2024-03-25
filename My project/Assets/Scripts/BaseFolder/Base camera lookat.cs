@@ -11,11 +11,14 @@ public class Basecameralookat : MonoBehaviour
     void Update () {
          if(Input.GetMouseButton(1))
          {
+            /// Cursor set to invisible and locked in the middle of the screen
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+
+            /// Movement, rotation and vertical movement functions that are called
             Movement();
             Rotation();
-            ///VerticalMove();
+            VerticalMove();
 
          }
          else
@@ -50,7 +53,7 @@ public class Basecameralookat : MonoBehaviour
         transform.Translate(input * currentSpeed * Time.deltaTime);
      }
 
-     /*void VerticalMove()
+     void VerticalMove()
      {  
         Vector3 input2 = new Vector3(0f,0f,0f);
         if(Input.GetKey("c"))
@@ -65,6 +68,6 @@ public class Basecameralookat : MonoBehaviour
         }
 
         transform.Translate(input2 * Time.deltaTime);
-     }*/
+     }
 
 }

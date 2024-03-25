@@ -6,11 +6,11 @@ using TMPro;
 
 public class ResourcesScript : MonoBehaviour
 {
-    public static int currentGold = 1000;
-    public static int currentElixir = 1000;
+    public static int currentGold;
+    public static int currentElixir;
 
-    public static int goldPerSec = 0;
-    public static int elixirPerSec = 0;
+    public static int goldPerSec;
+    public static int elixirPerSec;
 
     [Header("Base")]
     public TextMeshProUGUI baseGold;
@@ -31,6 +31,7 @@ public class ResourcesScript : MonoBehaviour
     private float timer = 0.0f;
 
     public void Update(){
+        /// Updates the UI text every frame
         baseGold.text = currentGold.ToString();
         baseElixir.text = currentElixir.ToString();
 
@@ -47,14 +48,14 @@ public class ResourcesScript : MonoBehaviour
     }
 
     public void ResourceIncrease(){
-        timer += Time.deltaTime;
+        timer += Time.deltaTime; /// Increase timer
 
         if(timer >= 1.0f ){
 
-            currentGold += goldPerSec;
-            currentElixir += elixirPerSec;
+            currentGold += goldPerSec; /// Increases gold
+            currentElixir += elixirPerSec; /// Increases elixir
 
-            timer = 0.0f;
+            timer = 0.0f; /// Resets timer
         }
     }
 
@@ -62,11 +63,11 @@ public class ResourcesScript : MonoBehaviour
     {
         if (objectToDelete.name.Contains("Gold Hut"))
         {
-            goldPerSec -= 5;
+            goldPerSec -= 5; /// reduce gold income if name includes gold hut
         }
         else if (objectToDelete.name.Contains("Wizard Hut"))
         {
-            elixirPerSec -= 5;
+            elixirPerSec -= 5; /// reduce gold income if name includes wiazrd hut
         }
     }
 
@@ -76,12 +77,18 @@ public class ResourcesScript : MonoBehaviour
     {
         // Initialises the building info dict
         InitialiseBuildingInfoDict();
+
+        currentGold = 1000;
+        currentElixir = 1000;
+
+        goldPerSec = 0;
+        elixirPerSec = 0;
         
     }
 
     void InitialiseBuildingInfoDict()
     {
-        buildingInfoDictionary = new Dictionary<string, BuildingInfo>
+        buildingInfoDictionary = new Dictionary<string, BuildingInfo> /// defines dictionary
         {
             {"Gold Hut", new BuildingInfo(50, 100, "gold", 5, 0)},
             {"Wizard Hut", new BuildingInfo(100, 50, "well", 0, 5)},
@@ -91,7 +98,7 @@ public class ResourcesScript : MonoBehaviour
         };
     }
 
-
+    /// class used to store values and act as a dictionary
     public class BuildingInfo
     {
         public int GoldUsage { get; }
@@ -100,6 +107,7 @@ public class ResourcesScript : MonoBehaviour
         public int B_GoldPerSec { get; }
         public int B_ElixirPerSec { get; }
 
+        ///initialising of class and its data
         public BuildingInfo(int goldUsage, int elixirUsage, string upgradeType, int goldPerSec, int elixirPerSec)
         {
             GoldUsage = goldUsage;
@@ -112,30 +120,34 @@ public class ResourcesScript : MonoBehaviour
 
     public static bool ResourceUsage(GameObject objectToPlace)
     {
-        string key = objectToPlace.name.Replace("(Clone)", "").Trim();
-        if (key.Contains("Wall"))
+        string key = objectToPlace.name.Replace("(Clone)", "").Trim(); /// removes “clone” if it is included in the object's name
+        if (key.Contains("Wall")) 
         {
-            key = "Wall";
+            key = "Wall"; /// if key contains wall, change key to wall
         }
 
+        /// get values from dictionary
         int goldUsage = buildingInfoDictionary[key].GoldUsage;
         int elixirUsage = buildingInfoDictionary[key].ElixirUsage;
         string upgradeType = buildingInfoDictionary[key].UpgradeType;
         int b_goldPerSec = buildingInfoDictionary[key].B_GoldPerSec;
         int b_elixirPerSec = buildingInfoDictionary[key].B_ElixirPerSec;
 
-        if (((currentGold - goldUsage) < 0)||((currentElixir - elixirUsage) < 0))
+        if (((currentGold - goldUsage) < 0)||((currentElixir - elixirUsage) < 0)) /// Testing if the player has enough resources
         {
             Debug.Log("Not enough resources");
             return false;
         }
         else
         {
+            /// resources are deducted, income increased and upgrade requirement updated
             currentGold -= goldUsage;
             currentElixir -= elixirUsage;
+
             elixirPerSec += b_elixirPerSec;
             goldPerSec += b_goldPerSec;
-            Upgrade.Built("upgradeType");
+
+            Upgrade.Built(upgradeType);
             return true;
         }
     }

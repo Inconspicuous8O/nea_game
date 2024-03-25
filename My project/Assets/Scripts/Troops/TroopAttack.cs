@@ -16,37 +16,38 @@ public class TroopAttack : MonoBehaviour
 
     public void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0)) /// if left click was inputted
         {
-            if (fireCountdown <= 0)
+            if (fireCountdown <= 0) /// if ready to attack
             {
-                TroopAttackFunction();
-                fireCountdown = 1f/fireRate;
+                TroopAttackFunction(); /// call attack function
+                fireCountdown = 1f/fireRate; /// reset countdown
             }
         }
-        fireCountdown -= Time.deltaTime;
+        fireCountdown -= Time.deltaTime; /// reduce countdown
     }
 
     public void TroopAttackFunction()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); /// shoot a raycast from camera
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit))
+        if (Physics.Raycast(ray, out hit)) /// if raycast hit something
         {
-            if (hit.collider.gameObject.tag == "Enemy")
+            if (hit.collider.gameObject.tag == "Enemy") /// if that something is an enemy
             {
+                /// calculate distance to troop from enemy
                 float distanceToEnemy = Vector3.Distance(transform.position, hit.transform.position);
 
-                if (distanceToEnemy <= range)
+                if (distanceToEnemy <= range) /// if enemy is within range
                 {
-                    if(bulletPrefab == null && firePoint == null)
+                    if(bulletPrefab == null && firePoint == null) /// if there is no prefabs
                     {
-                        BarbAttack(hit.collider.transform.parent.gameObject);
+                        BarbAttack(hit.collider.transform.parent.gameObject); /// barbarian attack
                     }
                     else
                     {
-                        ShootArrow(hit.collider.transform.parent.gameObject);
+                        ShootArrow(hit.collider.transform.parent.gameObject); /// archer attack
                     }
                 }
                 else
@@ -59,19 +60,20 @@ public class TroopAttack : MonoBehaviour
 
     void BarbAttack(GameObject obj)
     {
-        HealthScript health = obj.GetComponent<HealthScript>();
-        health.TakeDamage(damage);
+        HealthScript health = obj.GetComponent<HealthScript>(); /// grab enemy health component
+        health.TakeDamage(damage); /// deal damage
     }
 
 
     void ShootArrow(GameObject obj)
     {
+        /// create object
         GameObject arrowShot = (GameObject)Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-        Projectile_motion arrow = arrowShot.GetComponent<Projectile_motion>();
+        Projectile_motion arrow = arrowShot.GetComponent<Projectile_motion>(); /// gets component
 
-        if (arrow != null)
+        if (arrow != null) /// ensures that arrow exists
         {
-            arrow.Seek(obj.transform);
+            arrow.Seek(obj.transform); /// continue tracking target 
         }
     } 
 }
